@@ -7,13 +7,14 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-from api_request.api_request import ApiRequest
-from sqlite_storage.sqlite_storage import SqliteStorage
+from src.api_request.api_request import ApiRequest
+from src.sqlite_storage.sqlite_storage import SqliteStorage
 
 
 if __name__ == "__main__":
     # db_location = sys.argv[1]
     db_location = os.environ["DB_LOCATION"]
+    chuck_api_url = "https://api.chucknorris.io/jokes/"
     api = ApiRequest()
     storage = SqliteStorage(db_path=db_location)
 

@@ -6,7 +6,7 @@ import requests
 
 
 class ApiRequest:
-    def __inin__(self):
+    def __init__(self):
         self.base_api_url = "https://api.chucknorris.io/jokes/"
 
     def get_random(self):
@@ -23,7 +23,7 @@ class ApiRequest:
         """
         Returns a random Chuck Norris joke from the specified category.
         """
-        category_chuck_jokes = "random?category=" + category
+        category_chuck_jokes = self.base_api_url + "random?category=" + category
         response = requests.get(category_chuck_jokes)
         json_data = json.loads(response.text)
 
