@@ -1,0 +1,15 @@
+py_library(
+    name = "api_request",
+    srcs = ["api_request.py"],
+)
+
+py_test(
+    name = "api_request_test",
+    srcs = ["api_request_test.py"],
+    deps = [
+        "//api_request:api_request",
+        # ":api_request",
+        # "//third_party/python:mock",
+        # "//third_party/python:pytest",
+    ],
+)
