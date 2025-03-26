@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import os
 
-from src.api_request.api_request import ApiRequest
-from src.sqlite_storage.sqlite_storage import SqliteStorage
+from chucks_wisdom.api_request.api_request import ApiRequest
+from chucks_wisdom.sqlite_storage.sqlite_storage import SqliteStorage
 
 
 if __name__ == "__main__":

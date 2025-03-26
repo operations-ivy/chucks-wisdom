@@ -1,15 +1,10 @@
 from __future__ import annotations
 
 import os
-import sys
 
 from flask import Flask
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.append(parent_dir)
-
-from sqlite_storage.sqlite_storage import SqliteStorage
+from chucks_wisdom.sqlite_storage.sqlite_storage import SqliteStorage
 
 
 app = Flask(__name__)
