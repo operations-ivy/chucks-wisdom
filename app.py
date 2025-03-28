@@ -25,5 +25,10 @@ def show_all_jokes():
     return html
 
 
+@app.route("/health")
+def health_check():
+    return "OK"
+
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")
