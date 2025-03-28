@@ -1,59 +1,22 @@
 # # docker build -t joke-reader:1.0 . --no-cache
-# FROM python:3.9-alpine
-# RUN apk add --no-cache curl
-# WORKDIR /app
-# RUN touch /app/sqlite.db
-# ENV DB_LOCATION=/app/sqlite.db
-# COPY requirements.txt requirements.txt
-# RUN pip install -r requirements.txt
-# COPY app.py app.py
-# EXPOSE 5000
-# HEALTHCHECK --interval=30s --timeout=30s --start-period=30s --retries=5 \
-#             CMD curl -f http://localhost:5000/health || exit 1
-# ENTRYPOINT [ "python3", "app.py" ]
+FROM python:3.11-slim-buster
 
-FROM python:3.11.5-slim-bookworm
+RUN pip install poetry==1.3.2
 
-ARG JOKE_ENV
-
-ENV DB_LOCATION=/code/sqlite.db
-
-# ENV JOKE_ENV=${JOKE_ENV} \
-#   DB_LOCATION=/code/sqlite.db
-#   PYTHONFAULTHANDLER=1 \
-#   PYTHONUNBUFFERED=1 \
-#   PYTHONHASHSEED=random \
-#   PIP_NO_CACHE_DIR=off \
-#   PIP_DISABLE_PIP_VERSION_CHECK=on \
-#   PIP_DEFAULT_TIMEOUT=100 \
-#   # Poetry's configuration:
-#   POETRY_NO_INTERACTION=1 \
-#   POETRY_VIRTUALENVS_CREATE=false \
-#   POETRY_CACHE_DIR='/var/cache/pypoetry' \
-#   POETRY_HOME='/usr/local' \
-#   POETRY_VERSION=1.4.0
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=1 \
+    POETRY_CACHE_DIR=/tmp/poetry_cache
 
 WORKDIR /code
 
-RUN apt-get -y update; apt-get -y install curl
+COPY . /code/
 
-# System deps:
-RUN curl -sSL https://install.python-poetry.org | python3 -
+ENV DB_LOCATION=/code/chucks_wisdom/sqlite_storage/sqlite.db
 
-RUN touch /code/sqlite.db
+RUN poetry install --no-cache
 
-# Copy only requirements to cache them in docker layer
-WORKDIR /code
-COPY poetry.lock pyproject.toml /code/
-
-# Project initialization:
-RUN /root/.local/bin/poetry install --no-interaction --no-ansi
-
-# Creating folders, and files for a project:
-COPY . /code
-
-COPY app.py app.py
 EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=30s --start-period=30s --retries=5 \
             CMD curl -f http://localhost:5000/health || exit 1
-ENTRYPOINT [ "/root/.local/bin/poetry"," run", "python3", "app.py" ]
+ENTRYPOINT ["poetry", "run", "python", "app.py"]
