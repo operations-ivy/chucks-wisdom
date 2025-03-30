@@ -1,0 +1,18 @@
+# # docker build -t joke-importer:1.0 . --no-cache
+FROM python:3.11-slim-buster
+
+RUN apt-get update && apt-get install -y curl
+
+RUN curl -sSL https://install.python-poetry.org | python3 -
+
+ENV POETRY_NO_INTERACTION=1
+
+WORKDIR /code
+
+COPY . /code/
+
+ENV DB_LOCATION=/code/chucks_wisdom/sqlite_storage/sqlite.db
+
+RUN /root/.local/bin/poetry install --no-cache
+
+ENTRYPOINT ["/root/.local/bin/poetry", "run", "python", "joke_importer.py"]

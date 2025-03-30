@@ -1,53 +1,39 @@
-version: "2.42"
+version: '3.8'
+
 services:
-  zookeeper:
-    restart: always
-    container_name: kafka-like-zookeeper
-    image: docker.io/bitnami/zookeeper:3.8
-    ports:
-      - "2181:2181"
-    volumes:
-      - "zookeeper-volume:/bitnami"
-    environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
-    networks:
-      - jokenet
-
-  kafka:
-    restart: always
-    container_name: kafka-like
-    image: docker.io/bitnami/kafka:3.3
-    ports:
-      - "9093:9093"
-    volumes:
-      - "kafka-volume:/bitnami"
-    environment:
-      - KAFKA_BROKER_ID=1
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
-      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093
-      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
-    networks:
-      - jokenet
-    depends_on:
-      - zookeeper
-
   joke-reader:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.web
     image: joke-reader:1.0
+    environment:
+      - POETRY_NO_INTERACTION=1
+      - DB_LOCATION=/code/chucks_wisdom/sqlite_storage/sqlite.db
+    working_dir: /code
+    volumes:
+      - code-volume:/code
     ports:
-      - 5000:5000
-    restart: always
-    networks:
-      - jokenet
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      retries: 5
+      start_period: 30s
+      timeout: 30s
+    entrypoint: ["/root/.local/bin/poetry", "run", "python", "app.py"]
+
+  joke-importer:
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    image: joke-importer:1.0
+    environment:
+      - POETRY_NO_INTERACTION=1
+      - DB_LOCATION=/code/chucks_wisdom/sqlite_storage/sqlite.db
+    working_dir: /code
+    volumes:
+      - code-volume:/code
+    entrypoint: ["/root/.local/bin/poetry", "run", "python", "joke_importer.py"]
 
 volumes:
-  kafka-volume:
-  zookeeper-volume:
-
-networks:
-  jokenet:
+     code-volume:

@@ -41,7 +41,7 @@ def create_table(
 
 
 def main():
-    database = "/home/zaphod/code/chucks_wisdom/src/sqlite_storage/sqlite.db"
+    database = "/home/zaphod/code/chucks-wisdom/chucks_wisdom/sqlite_storage/sqlite.db"
 
     sql_create_chuck_table = """ CREATE TABLE IF NOT EXISTS chuck (
                                         id text PRIMARY KEY,
