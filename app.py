@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import os
 
 from flask import Flask
@@ -19,8 +20,10 @@ def show_all_jokes():
 
     html = ""
     for i in all_of_it:
-        html += "<h2>category: " + i[1] + "</br>"
-        html += "<h3>value " + i[2]
+        hashed_cat = hashlib.sha256(i[1].encode("utf-8")).hexdigest()
+        hashed_val = hashlib.sha256(i[2].encode("utf-8")).hexdigest()
+        html += "<tt>Category: " + hashed_cat + "</br>"
+        html += "<tt>Value: " + hashed_val
 
     return html
 
