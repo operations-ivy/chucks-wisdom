@@ -5,7 +5,7 @@ import os
 import structlog
 
 from chucks_wisdom.api_request.api_request import ApiRequest
-from chucks_wisdom.pg_storage.pg_storage import PGStorage
+from chucks_wisdom.sql_storage.pg_storage import PGStorage
 
 log = structlog.get_logger()
 
