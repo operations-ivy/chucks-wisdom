@@ -5,21 +5,26 @@ import os
 import structlog
 
 from chucks_wisdom.api_request.api_request import ApiRequest
-from chucks_wisdom.sqlite_storage.sqlite_storage import SqliteStorage
+from chucks_wisdom.sql_storage.pg_storage import PGStorage
 
 log = structlog.get_logger()
 
 if __name__ == "__main__":
-    # db_location = sys.argv[1]
-    db_location = os.environ["DB_LOCATION"]
+    db_connection_string = os.environ["DB_CONNECTION_STRING"]
     chuck_api_url = "https://api.chucknorris.io/jokes/"
     api = ApiRequest()
-    storage = SqliteStorage(db_path=db_location)
+    try:
+        log.info("Creating DBC Connection")
+        log.info("...")
+        storage = PGStorage(db_connection_string)
+        log.info("DB Connection Established!")
+    except:
+        raise Exception("No connection, did you export DB_CONNECTION_STRING?")
 
     joke_categories = api.get_categories()
     joke_count = 0
-    desired_joke_count = 250
-    joke_range = 500
+    desired_joke_count = 750
+    joke_range = 1000
     max_duplicates = 50
 
     while joke_count < desired_joke_count:

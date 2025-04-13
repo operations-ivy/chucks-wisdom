@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  postgresql:
+    image: postgres
+    container_name: postgres_chuck
+    restart: always
+    environment:
+      #POSTGRES_DB: "chuck"
+      POSTGRES_USER: "zaphod"
+      POSTGRES_PASSWORD: "zaphod"
+      POSTGRES_ROOT_PASSWORD: "zaphod2"
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db:/var/lib/postgresql/data
+      - ./create.sql:/docker-entrypoint-initdb.d/init.sql
