@@ -18,4 +18,4 @@ RUN /root/.local/bin/poetry install --no-cache
 EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=30s --start-period=30s --retries=5 \
             CMD curl -f http://0.0.0.0:5000/health || exit 1
-ENTRYPOINT ["/root/.local/bin/poetry", "run", "python", "app.py"]
+ENTRYPOINT ["/root/.local/bin/poetry", "run", "python", "reder.py"]

@@ -8,7 +8,7 @@ services:
     image: joke-reader:1.0
     environment:
       - POETRY_NO_INTERACTION=1
-      - DB_LOCATION=/code/chucks_wisdom/sqlite_storage/sqlite.db
+      - DB_CONNECTION_STRING=
     working_dir: /code
     volumes:
       - code-volume:/code
@@ -20,7 +20,7 @@ services:
       retries: 5
       start_period: 30s
       timeout: 30s
-    entrypoint: ["/root/.local/bin/poetry", "run", "python", "app.py"]
+    entrypoint: ["/root/.local/bin/poetry", "run", "python", "reader.py"]
 
   joke-importer:
     build:
@@ -29,11 +29,11 @@ services:
     image: joke-importer:1.0
     environment:
       - POETRY_NO_INTERACTION=1
-      - DB_LOCATION=/code/chucks_wisdom/sqlite_storage/sqlite.db
+      - DB_CONNECTION_STRING=
     working_dir: /code
     volumes:
       - code-volume:/code
-    entrypoint: ["/root/.local/bin/poetry", "run", "python", "joke_importer.py"]
+    entrypoint: ["/root/.local/bin/poetry", "run", "python", "importer.py"]
 
 volumes:
      code-volume:

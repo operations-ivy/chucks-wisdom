@@ -15,4 +15,4 @@ ENV DB_CONNECTION_STRING=
 
 RUN /root/.local/bin/poetry install --no-cache
 
-ENTRYPOINT ["/root/.local/bin/poetry", "run", "python", "joke_importer.py"]
+ENTRYPOINT ["/root/.local/bin/poetry", "run", "python", "importer.py"]
