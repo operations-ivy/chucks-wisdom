@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import time
 
 import structlog
 
@@ -23,9 +24,10 @@ if __name__ == "__main__":
 
     joke_categories = api.get_categories()
     joke_count = 0
-    desired_joke_count = 750
+    desired_joke_count = 1000
     joke_range = 1000
     max_duplicates = 50
+    sleep_interval = 15
 
     while joke_count < desired_joke_count:
         for category in joke_categories:
@@ -36,6 +38,7 @@ if __name__ == "__main__":
                 joke_category = category
                 joke_value = joke_data["value"]
 
+                time.sleep(sleep_interval)
                 if storage.check_for_duplicate(joke_id, joke_value) == False and duplicate_count < max_duplicates:
                     storage.insert_joke(joke_id, category, joke_value)
                     joke_count += 1

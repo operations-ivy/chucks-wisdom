@@ -1,7 +1,7 @@
 # # docker build -t joke-reader:1.0 . --no-cache
 FROM python:3.11-slim-buster
 
-RUN apt-get update && apt-get install -y curl
+RUN apt-get update && apt-get install -y curl libpq-dev gcc
 
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
@@ -11,11 +11,11 @@ WORKDIR /code
 
 COPY . /code/
 
-ENV DB_LOCATION=/code/chucks_wisdom/sqlite_storage/sqlite.db
+ENV DB_CONNECTION_STRING=
 
 RUN /root/.local/bin/poetry install --no-cache
 
 EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=30s --start-period=30s --retries=5 \
-            CMD curl -f http://localhost:5000/health || exit 1
-ENTRYPOINT ["/root/.local/bin/poetry", "run", "python", "app.py"]
+            CMD curl -f http://0.0.0.0:5000/health || exit 1
+ENTRYPOINT ["/root/.local/bin/poetry", "run", "python", "reder.py"]
