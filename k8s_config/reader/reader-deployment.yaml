@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reader
+  namespace: chuck
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reader
+  template:
+    metadata:
+      labels:
+        app: reader
+    spec:
+      containers:
+      - name: reader
+        image: whitepatrick/joke-reader:1.0.3
+        ports:
+        - containerPort: 5000
+        env:
+        - name: DB_CONNECTION_STRING
+          value: "postgresql://zaphod:zaphod@postgres:5432/chuck"

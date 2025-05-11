@@ -5,7 +5,7 @@ import os
 
 from flask import Flask
 
-from chucks_wisdom.sqlite_storage.sqlite_storage import SqliteStorage
+from chucks_wisdom.sql_storage.pg_storage import PGStorage
 
 
 app = Flask(__name__)
@@ -13,8 +13,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def show_all_jokes():
-    db_location = os.environ["DB_LOCATION"]
-    storage = SqliteStorage(db_path=db_location)
+    db_connection_string = os.environ["DB_CONNECTION_STRING"]
+    storage = PGStorage(db_connection_string)
 
     all_of_it = storage.read_all_jokes()
 
