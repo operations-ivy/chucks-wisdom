@@ -22,8 +22,10 @@ def show_all_jokes():
     for i in all_of_it:
         hashed_cat = hashlib.sha256(i[1].encode("utf-8")).hexdigest()
         hashed_val = hashlib.sha256(i[2].encode("utf-8")).hexdigest()
-        html += "<tt>Category: " + hashed_cat + "</br>"
-        html += "<tt>Value: " + hashed_val
+        html += f"""
+            <pre>Category: {hashed_cat}
+Value: {hashed_val}</pre>
+        """
 
     return html
 
