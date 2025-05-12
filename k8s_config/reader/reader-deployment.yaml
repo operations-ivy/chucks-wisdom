@@ -15,9 +15,22 @@ spec:
     spec:
       containers:
       - name: reader
-        image: whitepatrick/joke-reader:1.0.3
+        image: whitepatrick/joke-reader:1.0.6
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         env:
         - name: DB_CONNECTION_STRING
           value: "postgresql://zaphod:zaphod@postgres:5432/chuck"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
