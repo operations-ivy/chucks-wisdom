@@ -15,24 +15,26 @@ if __name__ == "__main__":
     chuck_api_url = "https://api.chucknorris.io/jokes/"
     api = ApiRequest()
     try:
-        log.info("Creating DBC Connection")
+        log.info("Creating DB Connection")
         log.info("...")
         storage = PGStorage(db_connection_string)
         log.info("DB Connection Established!")
     except:
         raise Exception("No connection, did you export DB_CONNECTION_STRING?")
 
+    # TODO: offload these variables to helm chart
     joke_categories = api.get_categories()
     joke_count = 0
     desired_joke_count = 1000
     joke_range = 1000
     max_duplicates = 50
-    sleep_interval = 15
+    sleep_interval = 60
 
     while joke_count < desired_joke_count:
         for category in joke_categories:
             duplicate_count = 0
             for i in range(joke_range):
+                log.info("Checking API.. %s", i)
                 joke_data = api.get_random_joke_from_category(category)
                 joke_id = joke_data["id"]
                 joke_category = category

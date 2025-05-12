@@ -4,7 +4,7 @@ metadata:
   name: reader-ingress
   namespace: chuck
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
   - host: reader.local
