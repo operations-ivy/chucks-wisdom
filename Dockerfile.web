@@ -11,8 +11,6 @@ ENV POETRY_NO_INTERACTION=1
 
 WORKDIR /code
 
-ADD chucks_wisdom /code/chucks_wisdom
-
 COPY reader.py pyproject.toml /code/
 
 ENV PYTHONPATH=/code
