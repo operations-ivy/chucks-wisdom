@@ -4,9 +4,8 @@ import os
 import time
 
 import structlog
+from api_request_operations_ivy.api_request import ApiRequest
 from sql_storage_operations_ivy.pg_storage import PGStorage
-
-from chucks_wisdom.api_request.api_request import ApiRequest
 
 log = structlog.get_logger()
 

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: importer
-          image: whitepatrick/joke-importer:1.0.7
+          image: whitepatrick/joke-importer:1.0.8
           imagePullPolicy: Always
           env:
             - name: DB_CONNECTION_STRING
