@@ -4,9 +4,9 @@ import os
 import time
 
 import structlog
+from sql_storage_operations_ivy.pg_storage import PGStorage
 
 from chucks_wisdom.api_request.api_request import ApiRequest
-from chucks_wisdom.sql_storage.pg_storage import PGStorage
 
 log = structlog.get_logger()
 
@@ -19,7 +19,7 @@ if __name__ == "__main__":
         log.info("...")
         storage = PGStorage(db_connection_string)
         log.info("DB Connection Established!")
-    except:
+    except:  # noqa: E722
         raise Exception("No connection, did you export DB_CONNECTION_STRING?")
 
     # TODO: offload these variables to helm chart

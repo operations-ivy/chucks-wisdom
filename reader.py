@@ -4,8 +4,7 @@ import hashlib
 import os
 
 from flask import Flask
-
-from chucks_wisdom.sql_storage.pg_storage import PGStorage
+from sql_storage_operations_ivy.pg_storage import PGStorage
 
 
 app = Flask(__name__)
