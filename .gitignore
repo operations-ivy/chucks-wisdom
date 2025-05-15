@@ -172,3 +172,4 @@ sqlite_storage/sqlite.db.bak
 port_hosts_app/old
 .pre-commit-config.yaml
 src/sqlite_storage/sqlite.db
+old_crap/
