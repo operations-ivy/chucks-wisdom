@@ -13,6 +13,7 @@ structlog = "^25.2.0"
 psycopg = {extras = ["binary", "pool"], version = "^3.2.7"}
 psycopg-c = "^3.2.7"
 psycopg2-binary = "^2.9.10"
+sql-storage-operations-ivy = "^1.0.0"
 
 [build-system]
 requires = ["poetry>=1.3.2"]
