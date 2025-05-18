@@ -12,8 +12,10 @@ from sql_storage_operations_ivy.pg_storage import PGStorage
 log = structlog.get_logger()
 
 JOKES_WRITTEN = Counter("importer_jokes_written_total", "Number of jokes written to DB this session")
-DUPLICATES_RECEIVED = Counter("importer_duplicate_joke_total", "duplicate joke hits from API")
-CATEGORY_SWITCHES = Counter("importer_category_switch_total", "amount of times category has switched due to duplicates")
+DUPLICATES_RECEIVED = Counter("importer_duplicates_received_total", "duplicate joke hits from API")
+CATEGORY_SWITCHES = Counter(
+    "importer_category_switches_total", "amount of times category has switched due to duplicates"
+)
 
 start_http_server(8000)
 
