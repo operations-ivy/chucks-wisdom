@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: chuck
+  name: importer
+  labels:
+    app: importer
+spec:
+  selector:
+    app: importer
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: metrics
