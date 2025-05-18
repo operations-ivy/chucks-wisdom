@@ -22,4 +22,4 @@ spec:
             - name: DB_CONNECTION_STRING
               value: "postgresql://zaphod:zaphod@postgres:5432/chuck"
           ports:
-            - containerPort: 5000  # Adjust if your app uses a different port
+            - containerPort: 5000

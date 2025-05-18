@@ -15,6 +15,7 @@ psycopg-c = "^3.2.7"
 psycopg2-binary = "^2.9.10"
 sql-storage-operations-ivy = "^1.0.0"
 api-request-operations-ivy = "^0.1.0"
+prometheus-client = "^0.22.0"
 
 [build-system]
 requires = ["poetry>=1.3.2"]
