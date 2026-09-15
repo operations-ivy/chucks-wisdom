@@ -17,9 +17,9 @@ CATEGORY_SWITCHES = Counter(
     "importer_category_switches_total", "amount of times category has switched due to duplicates"
 )
 
-start_http_server(8000)
-
 if __name__ == "__main__":
+    start_http_server(8000)
+
     db_connection_string = os.environ["DB_CONNECTION_STRING"]
     chuck_api_url = "https://api.chucknorris.io/jokes/"
     api = ApiRequest()
@@ -28,8 +28,8 @@ if __name__ == "__main__":
         log.info("...")
         storage = PGStorage(db_connection_string)
         log.info("DB Connection Established!")
-    except:  # noqa: E722
-        raise Exception("No connection, did you export DB_CONNECTION_STRING?")
+    except Exception as e:
+        raise Exception("No connection, did you export DB_CONNECTION_STRING?") from e
 
     # TODO: offload these variables to helm chart
     joke_categories = api.get_categories()
@@ -39,32 +39,40 @@ if __name__ == "__main__":
     max_duplicates = 50
     sleep_interval = 60
 
-    while joke_count < desired_joke_count:
-        for category in joke_categories:
-            duplicate_count = 0
-            for i in range(joke_range):
-                log.info("Checking API.. %s", i)
-                joke_data = api.get_random_joke_from_category(category)
-                joke_id = joke_data["id"]
-                joke_category = category
-                joke_value = joke_data["value"]
+    try:
+        while joke_count < desired_joke_count:
+            joke_count_before_pass = joke_count
+            for category in joke_categories:
+                duplicate_count = 0
+                for i in range(joke_range):
+                    log.info("Checking API.. %s", i)
+                    try:
+                        joke_data = api.get_random_joke_from_category(category)
+                        joke_id = joke_data["id"]
+                        joke_value = joke_data["value"]
 
-                time.sleep(sleep_interval)
-                if storage.check_for_duplicate(joke_id, joke_value) == False and duplicate_count < max_duplicates:
-                    storage.insert_joke(joke_id, category, joke_value)
-                    joke_count += 1
-                    JOKES_WRITTEN.inc()
-                    log.info("Thats a new one!: %s", joke_id)
-                elif duplicate_count >= max_duplicates:
-                    CATEGORY_SWITCHES.inc()
-                    log.info("Ok let's move on: %s", category)
-                    break
-                else:
-                    DUPLICATES_RECEIVED.inc()
-                    log.info("I've heard that one before: %s", joke_id)
-                    duplicate_count += 1
-                    duplicate_checks_remaining = max_duplicates - duplicate_count
-                    continue
+                        time.sleep(sleep_interval)
+                        if not storage.check_for_duplicate(joke_id, joke_value) and duplicate_count < max_duplicates:
+                            storage.insert_joke(joke_id, category, joke_value)
+                            joke_count += 1
+                            JOKES_WRITTEN.inc()
+                            log.info("Thats a new one!: %s", joke_id)
+                        elif duplicate_count >= max_duplicates:
+                            CATEGORY_SWITCHES.inc()
+                            log.info("Ok let's move on: %s", category)
+                            break
+                        else:
+                            DUPLICATES_RECEIVED.inc()
+                            log.info("I've heard that one before: %s", joke_id)
+                            duplicate_count += 1
+                            continue
+                    except Exception:
+                        log.exception("Error fetching/storing joke for category %s, skipping", category)
+                        continue
 
-        log.info("Total Jokes Added this run: %s", str(joke_count))
-    storage.close_connection()
+            log.info("Total Jokes Added this run: %s", str(joke_count))
+            if joke_count == joke_count_before_pass:
+                log.warning("No new jokes found in a full pass over all categories, stopping.")
+                break
+    finally:
+        storage.close_connection()
