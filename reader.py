@@ -15,7 +15,10 @@ def show_all_jokes():
     db_connection_string = os.environ["DB_CONNECTION_STRING"]
     storage = PGStorage(db_connection_string)
 
-    all_of_it = storage.read_all_jokes()
+    try:
+        all_of_it = storage.read_all_jokes()
+    finally:
+        storage.close_connection()
 
     html = ""
     for i in all_of_it:
@@ -35,4 +38,4 @@ def health_check():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=False, host="0.0.0.0")
