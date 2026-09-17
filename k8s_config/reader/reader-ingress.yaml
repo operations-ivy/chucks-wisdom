@@ -3,9 +3,8 @@ kind: Ingress
 metadata:
   name: reader-ingress
   namespace: chuck
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: traefik
   rules:
   - host: reader.local
     http:

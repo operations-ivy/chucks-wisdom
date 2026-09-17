@@ -1,19 +1,17 @@
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: importer
   namespace: chuck
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: importer
+  backoffLimit: 3
   template:
     metadata:
       labels:
         app: importer
     spec:
+      restartPolicy: OnFailure
       containers:
         - name: importer
           image: whitepatrick/joke-importer:1.1.0
@@ -22,4 +20,11 @@ spec:
             - name: DB_CONNECTION_STRING
               value: "postgresql://zaphod:zaphod@postgres:5432/chuck"
           ports:
-            - containerPort: 5000
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
