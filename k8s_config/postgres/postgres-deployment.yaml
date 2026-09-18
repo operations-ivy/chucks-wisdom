@@ -14,6 +14,8 @@ spec:
       labels:
         app: postgres
     spec:
+      nodeSelector:
+        chuck.io/storage-node: "true"
       containers:
         - name: postgres
           image: postgres:15
