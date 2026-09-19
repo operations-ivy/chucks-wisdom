@@ -10,8 +10,8 @@ nodes:
 
 Both run as user `zaphod` with the laptop's SSH key already authorized.
 
-**Cluster bootstrap (installing k3s, joining the worker, the dashboard,
-Terraform for cluster-level resources) lives in the separate
+**Cluster bootstrap (installing k3s, joining the worker, the dashboard) lives
+in the separate
 [`brick-k8s-config`](https://github.com/operations-ivy/brick-k8s-config) repo
 now** — that's cluster infrastructure, not specific to this app, so it moved
 out. This doc picks up assuming the cluster is already up and
