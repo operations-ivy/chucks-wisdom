@@ -11,7 +11,8 @@ ENV POETRY_NO_INTERACTION=1
 
 WORKDIR /code
 
-COPY reader.py pyproject.toml /code/
+COPY reader.py cyberpunk.py pyproject.toml /code/
+COPY templates/ /code/templates/
 
 ENV PYTHONPATH=/code
 
@@ -21,4 +22,4 @@ RUN /usr/local/bin/poetry install --no-root
 
 EXPOSE 5000
 
-ENTRYPOINT ["/usr/local/bin/poetry", "run", "python", "reader.py"]
+ENTRYPOINT ["/usr/local/bin/poetry", "run", "python", "cyberpunk.py"]
