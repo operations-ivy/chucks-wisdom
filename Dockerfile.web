@@ -1,13 +1,19 @@
 # docker build -t whitepatrick/joke-reader:1.0 . --no-cache
 FROM python:3.11-slim-bookworm
 
-RUN apt-get update && apt-get install -y curl libpq-dev gcc
+# psycopg[binary] ships a prebuilt wheel (no local C compile needed), so no
+# gcc/libpq-dev here — that's what made this layer take ~24min under qemu.
+RUN apt-get update && apt-get install -y curl
 
 ENV POETRY_VERSION=1.3.2
 
 RUN pip install "poetry==$POETRY_VERSION"
 
 ENV POETRY_NO_INTERACTION=1
+# Default 15s read timeout is too tight under qemu emulation on the dev
+# laptop's arm64 buildx runs — a slow read (not a dead connection) was
+# enough to abort the whole install.
+ENV PIP_DEFAULT_TIMEOUT=120
 
 WORKDIR /code
 
