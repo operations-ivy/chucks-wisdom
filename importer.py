@@ -5,11 +5,17 @@ import time
 
 import structlog
 from api_request_operations_ivy.api_request import ApiRequest
+from opentelemetry import trace
+from opentelemetry.instrumentation.psycopg import PsycopgInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from prometheus_client import Counter
 from prometheus_client import start_http_server
 from sql_storage_operations_ivy.pg_storage import PGStorage
 
+from tracing import init_tracing
+
 log = structlog.get_logger()
+tracer = trace.get_tracer(__name__)
 
 JOKES_WRITTEN = Counter("importer_jokes_written_total", "Number of jokes written to DB this session")
 DUPLICATES_RECEIVED = Counter("importer_duplicates_received_total", "duplicate joke hits from API")
@@ -18,6 +24,10 @@ CATEGORY_SWITCHES = Counter(
 )
 
 if __name__ == "__main__":
+    init_tracing("chucks-wisdom-importer")
+    RequestsInstrumentor().instrument()
+    PsycopgInstrumentor().instrument()
+
     start_http_server(8000)
 
     db_connection_string = os.environ["DB_CONNECTION_STRING"]
@@ -47,25 +57,35 @@ if __name__ == "__main__":
                 for i in range(joke_range):
                     log.info("Checking API.. %s", i)
                     try:
-                        joke_data = api.get_random_joke_from_category(category)
-                        joke_id = joke_data["id"]
-                        joke_value = joke_data["value"]
+                        with tracer.start_as_current_span("process_joke") as span:
+                            span.set_attribute("chuck.category", category)
 
-                        time.sleep(sleep_interval)
-                        if not storage.check_for_duplicate(joke_id, joke_value) and duplicate_count < max_duplicates:
-                            storage.insert_joke(joke_id, category, joke_value)
-                            joke_count += 1
-                            JOKES_WRITTEN.inc()
-                            log.info("Thats a new one!: %s", joke_id)
-                        elif duplicate_count >= max_duplicates:
-                            CATEGORY_SWITCHES.inc()
-                            log.info("Ok let's move on: %s", category)
-                            break
-                        else:
-                            DUPLICATES_RECEIVED.inc()
-                            log.info("I've heard that one before: %s", joke_id)
-                            duplicate_count += 1
-                            continue
+                            joke_data = api.get_random_joke_from_category(category)
+                            joke_id = joke_data["id"]
+                            joke_value = joke_data["value"]
+                            span.set_attribute("chuck.joke_id", joke_id)
+
+                            time.sleep(sleep_interval)
+                            if (
+                                not storage.check_for_duplicate(joke_id, joke_value)
+                                and duplicate_count < max_duplicates
+                            ):
+                                storage.insert_joke(joke_id, category, joke_value)
+                                joke_count += 1
+                                JOKES_WRITTEN.inc()
+                                span.set_attribute("chuck.outcome", "inserted")
+                                log.info("Thats a new one!: %s", joke_id)
+                            elif duplicate_count >= max_duplicates:
+                                CATEGORY_SWITCHES.inc()
+                                span.set_attribute("chuck.outcome", "category_switch")
+                                log.info("Ok let's move on: %s", category)
+                                break
+                            else:
+                                DUPLICATES_RECEIVED.inc()
+                                span.set_attribute("chuck.outcome", "duplicate")
+                                log.info("I've heard that one before: %s", joke_id)
+                                duplicate_count += 1
+                                continue
                     except Exception:
                         log.exception("Error fetching/storing joke for category %s, skipping", category)
                         continue

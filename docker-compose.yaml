@@ -9,6 +9,7 @@ services:
     environment:
       - POETRY_NO_INTERACTION=1
       - DB_CONNECTION_STRING=
+      - OTEL_EXPORTER_OTLP_ENDPOINT=
     working_dir: /code
     volumes:
       - code-volume:/code
@@ -30,6 +31,7 @@ services:
     environment:
       - POETRY_NO_INTERACTION=1
       - DB_CONNECTION_STRING=
+      - OTEL_EXPORTER_OTLP_ENDPOINT=
     working_dir: /code
     volumes:
       - code-volume:/code
