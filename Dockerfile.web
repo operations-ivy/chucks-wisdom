@@ -19,7 +19,7 @@ ENV DB_CONNECTION_STRING=
 
 RUN /usr/local/bin/poetry install --no-root
 
-COPY reader.py cyberpunk.py /code/
+COPY reader.py cyberpunk.py tracing.py /code/
 COPY templates/ /code/templates/
 
 EXPOSE 5000
