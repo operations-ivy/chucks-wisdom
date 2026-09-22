@@ -11,7 +11,7 @@ requests = "^2.32.3"
 flask = "^3.1.0"
 structlog = "^25.2.0"
 psycopg = {extras = ["binary", "pool"], version = "^3.2.7"}
-sql-storage-operations-ivy = "^1.0.0"
+sql-storage-operations-ivy = "^1.0.1"
 api-request-operations-ivy = "^0.1.0"
 prometheus-client = "^0.22.0"
 opentelemetry-api = "^1.44.0"
