@@ -54,15 +54,19 @@ Postgres's startup and is caught by the Job's `restartPolicy: OnFailure` /
 
 ## 6. Reach the reader
 
-k3s's built-in ServiceLB fronts Traefik on **every** node's IP, so either
-works:
+k3s's built-in ServiceLB fronts Traefik on **every** node's IP. `reader.local`
+is announced over mDNS by `brick420` (`mdns-alias@reader.service`, see
+`brick-k8s-config`'s README, "LAN names for ingresses (mDNS)"), so any device on
+the home WiFi (phones included) resolves it with no setup. Just open
+`http://reader.local/`.
+
+Phones resolve `.local` names *only* via mDNS, so an `/etc/hosts` entry on a
+laptop never helped them. That's why this is announced from the cluster. On a
+machine without mDNS support you can still pin it:
 
 ```bash
-# on your workstation
 echo "192.168.1.183 reader.local" | sudo tee -a /etc/hosts
 ```
-
-Then `curl http://reader.local/` or open it in a browser.
 
 Kubernetes Dashboard is deployed separately, from `brick-k8s-config` — see
 that repo's README.
