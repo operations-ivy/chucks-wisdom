@@ -15,7 +15,7 @@ spec:
       containers:
         - name: importer
           image: whitepatrick/joke-importer:1.1.1
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           env:
             - name: DB_CONNECTION_STRING
               value: "postgresql://zaphod:zaphod@postgres:5432/chuck"
