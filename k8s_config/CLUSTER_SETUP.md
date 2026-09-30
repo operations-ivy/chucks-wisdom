@@ -73,7 +73,21 @@ that repo's README.
 
 ## Re-running the importer
 
-The importer is a `Job`, so it runs once and completes. To re-import:
+The importer is a `Job`, so it runs once and completes. The usual way to run it
+again is the `chuck-importer` job on Jenkins (brick9000, `http://jenkins.local`),
+whose parameters choose what to import:
+
+| Parameter | Env var | Default | |
+| --- | --- | --- | --- |
+| `QUERY` | `IMPORTER_QUERY` | empty | Import the jokes matching this text (one search request); empty samples random jokes by category |
+| `CATEGORIES` | `IMPORTER_CATEGORIES` | empty (all) | Comma-separated categories to sample |
+| `JOKES` | `IMPORTER_JOKES` | 1000 | Stop after this many new jokes |
+| `TRIES_PER_CATEGORY` | `IMPORTER_TRIES_PER_CATEGORY` | 1000 | Random pulls per category per pass |
+| `MAX_DUPLICATES` | `IMPORTER_MAX_DUPLICATES` | 50 | Duplicates before moving to the next category |
+| `SLEEP_SECONDS` | `IMPORTER_SLEEP_SECONDS` | 60 | Pause after each random pull |
+
+With the defaults a random import takes many hours (one pull a minute). By hand,
+with the defaults from the manifest:
 
 ```bash
 ssh zaphod@192.168.1.183 '

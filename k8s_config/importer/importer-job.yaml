@@ -14,13 +14,27 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: importer
-          image: whitepatrick/joke-importer:1.1.1
+          image: whitepatrick/joke-importer:1.1.2
           imagePullPolicy: IfNotPresent
           env:
             - name: DB_CONNECTION_STRING
               value: "postgresql://zaphod:zaphod@postgres:5432/chuck"
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "http://otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:4317"
+            # What to import (importer.Settings). The Jenkins chuck-importer job on
+            # brick9000 sets these from its parameters; these are the defaults.
+            - name: IMPORTER_QUERY          # free-text search; empty = random by category
+              value: ""
+            - name: IMPORTER_CATEGORIES     # comma-separated; empty = all
+              value: ""
+            - name: IMPORTER_JOKES
+              value: "1000"
+            - name: IMPORTER_TRIES_PER_CATEGORY
+              value: "1000"
+            - name: IMPORTER_MAX_DUPLICATES
+              value: "50"
+            - name: IMPORTER_SLEEP_SECONDS
+              value: "60"
           ports:
             - containerPort: 8000
           resources:
