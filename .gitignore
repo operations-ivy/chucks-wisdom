@@ -163,6 +163,8 @@ cython_debug/
 
 bazel-*
 *.lock
+# ...except Poetry's: the images install exactly what it pins (reproducible builds).
+!poetry.lock
 log_muncher/sample_logs
 flask_k8s_docker/flask-k8s-docker-env
 sqlite_storage/old_sqlite.db

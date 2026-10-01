@@ -16,12 +16,11 @@ services:
     ports:
       - "5000:5000"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
       interval: 30s
       retries: 5
       start_period: 30s
       timeout: 30s
-    entrypoint: ["/usr/local/bin/poetry", "run", "python", "cyberpunk.py"]
 
   joke-importer:
     build:
@@ -35,7 +34,6 @@ services:
     working_dir: /code
     volumes:
       - code-volume:/code
-    entrypoint: ["/root/.local/bin/poetry", "run", "python", "importer.py"]
 
 volumes:
      code-volume:
