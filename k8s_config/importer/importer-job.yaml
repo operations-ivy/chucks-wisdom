@@ -6,6 +6,10 @@ metadata:
   namespace: chuck
 spec:
   backoffLimit: 3
+  # Delete the finished Job and its pod after 10 minutes. Otherwise the pod
+  # lingers, the importer ServiceMonitor keeps scraping it, and TargetDown
+  # fires. Logs stay in Loki; the Jenkins chuck-importer job re-creates the Job.
+  ttlSecondsAfterFinished: 600
   template:
     metadata:
       labels:
