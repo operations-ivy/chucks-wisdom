@@ -6,19 +6,8 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  # Served through brick9000's proxy (brick-cicd-config). The .local name
-  # goes once nothing uses it.
+  # Served through brick9000's proxy (brick-cicd-config).
   - host: reader.brick.nozdormu.cloud
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: reader-service
-            port:
-              number: 80
-  - host: reader.local
     http:
       paths:
       - path: /

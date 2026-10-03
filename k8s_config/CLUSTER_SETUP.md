@@ -58,7 +58,6 @@ Open `https://reader.brick.nozdormu.cloud/`. It's served through brick9000's
 proxy, which forwards to Traefik on either node (k3s's ServiceLB fronts Traefik
 on **every** node's IP), so any device on the home WiFi, phones included, gets
 there with no setup. See `brick-k8s-config`'s README, "LAN names for ingresses".
-The old `http://reader.local/` (mDNS) still works until it's retired.
 
 Kubernetes Dashboard is deployed separately, from `brick-k8s-config` — see
 that repo's README.
