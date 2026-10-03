@@ -54,19 +54,11 @@ Postgres's startup and is caught by the Job's `restartPolicy: OnFailure` /
 
 ## 6. Reach the reader
 
-k3s's built-in ServiceLB fronts Traefik on **every** node's IP. `reader.local`
-is announced over mDNS by `brick420` (`mdns-alias@reader.service`, see
-`brick-k8s-config`'s README, "LAN names for ingresses (mDNS)"), so any device on
-the home WiFi (phones included) resolves it with no setup. Just open
-`http://reader.local/`.
-
-Phones resolve `.local` names *only* via mDNS, so an `/etc/hosts` entry on a
-laptop never helped them. That's why this is announced from the cluster. On a
-machine without mDNS support you can still pin it:
-
-```bash
-echo "192.168.1.183 reader.local" | sudo tee -a /etc/hosts
-```
+Open `https://reader.brick.nozdormu.cloud/`. It's served through brick9000's
+proxy, which forwards to Traefik on either node (k3s's ServiceLB fronts Traefik
+on **every** node's IP), so any device on the home WiFi, phones included, gets
+there with no setup. See `brick-k8s-config`'s README, "LAN names for ingresses".
+The old `http://reader.local/` (mDNS) still works until it's retired.
 
 Kubernetes Dashboard is deployed separately, from `brick-k8s-config` — see
 that repo's README.
@@ -74,7 +66,7 @@ that repo's README.
 ## Re-running the importer
 
 The importer is a `Job`, so it runs once and completes. The usual way to run it
-again is the `chuck-importer` job on Jenkins (brick9000, `http://jenkins.local`),
+again is the `chuck-importer` job on Jenkins (brick9000, `https://jenkins.brick.nozdormu.cloud`),
 whose parameters choose what to import:
 
 | Parameter | Env var | Default | |
