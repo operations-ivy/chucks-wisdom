@@ -1,0 +1,11 @@
+# Keep one reader pod up through node drains and evictions.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: reader
+  namespace: chuck
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: reader
