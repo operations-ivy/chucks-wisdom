@@ -21,8 +21,12 @@ spec:
           image: whitepatrick/joke-importer:1.1.2
           imagePullPolicy: IfNotPresent
           env:
+            # From the chuck-db SealedSecret (brick-k8s-secrets/chucks-wisdom/).
             - name: DB_CONNECTION_STRING
-              value: "postgresql://zaphod:zaphod@postgres:5432/chuck"
+              valueFrom:
+                secretKeyRef:
+                  name: chuck-db
+                  key: DB_CONNECTION_STRING
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "http://otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:4317"
             # What to import (importer.Settings). The Jenkins chuck-importer job on

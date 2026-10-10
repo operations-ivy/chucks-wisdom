@@ -5,6 +5,10 @@ metadata:
   name: postgres
   namespace: chuck
 spec:
+  # One Postgres at a time on its data directory: a rolling update would
+  # start the new pod beside the old one on the same volume.
+  strategy:
+    type: Recreate
   replicas: 1
   selector:
     matchLabels:
@@ -19,13 +23,12 @@ spec:
       containers:
         - name: postgres
           image: postgres:15
-          env:
-            - name: POSTGRES_USER
-              value: zaphod
-            - name: POSTGRES_PASSWORD
-              value: zaphod
-            - name: POSTGRES_DB
-              value: chuck
+          # From the chuck-db SealedSecret (brick-k8s-secrets/chucks-wisdom/).
+          # Postgres only reads these when it creates the database; the
+          # password was changed on the running database with ALTER ROLE.
+          envFrom:
+            - secretRef:
+                name: chuck-db
           ports:
             - containerPort: 5432
           resources:

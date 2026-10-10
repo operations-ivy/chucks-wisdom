@@ -32,16 +32,8 @@ data:
     CREATE INDEX IF NOT EXISTS chuck_id_category_idx ON chuck (id, category);
     CREATE INDEX IF NOT EXISTS chuck_id_category_value_idx ON chuck (id, category, value);
 
-    -- Create role/user if not exists
-    DO $$
-    BEGIN
-        IF NOT EXISTS (
-            SELECT FROM pg_catalog.pg_roles WHERE rolname = 'zaphod'
-        ) THEN
-            CREATE ROLE zaphod LOGIN PASSWORD 'zaphod';
-        END IF;
-    END
-    $$;
+    -- The zaphod role is created by the image from POSTGRES_USER and
+    -- POSTGRES_PASSWORD (the chuck-db Secret), so no password lives here.
 
     -- Grant all privileges on chuck table to zaphod
     GRANT ALL PRIVILEGES ON TABLE chuck TO zaphod;
