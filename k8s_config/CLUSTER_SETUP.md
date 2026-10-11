@@ -15,7 +15,7 @@ in the separate
 [`brick-k8s-config`](https://github.com/operations-ivy/brick-k8s-config) repo
 now** — that's cluster infrastructure, not specific to this app, so it moved
 out. This doc picks up assuming the cluster is already up and
-`~/.kube/chuck-config` already works (`brick-k8s-config`'s README covers
+`kubectl` already works with the default `~/.kube/config` (`brick-k8s-config`'s README covers
 getting there, including the `chuck.io/storage-node=true` label on
 `brick2000` that `postgres-deployment.yaml`'s `nodeSelector` depends on).
 
@@ -37,7 +37,7 @@ ssh zaphod@192.168.1.183 '
 # metrics-service-monitor.yaml only applies if kube-prometheus-stack's CRDs are installed
 ```
 
-(With local `kubectl` and `KUBECONFIG` set to `~/.kube/chuck-config`, just run
+(With local `kubectl` pointed at the cluster (the default `~/.kube/config`), just run
 the same `kubectl apply -f k8s_config/...` commands directly from the repo
 root.)
 
