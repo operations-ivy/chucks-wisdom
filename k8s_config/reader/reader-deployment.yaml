@@ -25,10 +25,11 @@ spec:
             app: reader
       containers:
       - name: reader
-        image: whitepatrick/joke-reader:1.0.12
+        image: whitepatrick/joke-reader:1.0.13
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 5000
+        - name: http
+          containerPort: 5000
         env:
         # From the chuck-db SealedSecret (brick-k8s-secrets/chucks-wisdom/).
         - name: DB_CONNECTION_STRING

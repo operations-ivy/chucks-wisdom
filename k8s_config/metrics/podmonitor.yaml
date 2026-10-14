@@ -1,0 +1,28 @@
+# Prometheus scrapes the reader's /metrics (metrics.py) and Postgres'
+# exporter sidecar. The dashboard is reader-dashboard-configmap.yaml.
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: reader
+  namespace: chuck
+spec:
+  selector:
+    matchLabels:
+      app: reader
+  podMetricsEndpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: postgres
+  namespace: chuck
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  podMetricsEndpoints:
+  - port: metrics
+    interval: 30s
