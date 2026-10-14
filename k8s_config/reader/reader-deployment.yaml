@@ -25,7 +25,7 @@ spec:
             app: reader
       containers:
       - name: reader
-        image: whitepatrick/joke-reader:1.0.11
+        image: whitepatrick/joke-reader:1.0.12
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
