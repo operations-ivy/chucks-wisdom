@@ -49,6 +49,8 @@ spec:
         # sizes, locks. Same credentials as the app, over localhost.
         - name: postgres-exporter
           image: quay.io/prometheuscommunity/postgres-exporter:v0.17.1
+          # postmaster: when Postgres started (off by default).
+          args: ["--collector.postmaster"]
           env:
             - name: DB_USER
               valueFrom:
