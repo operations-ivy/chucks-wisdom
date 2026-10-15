@@ -29,7 +29,7 @@ ENV VIRTUAL_ENV=/venv PATH=/venv/bin:$PATH PYTHONPATH=/code
 WORKDIR /code
 
 ENV DB_CONNECTION_STRING=
-COPY reader.py cyberpunk.py tracing.py /code/
+COPY reader.py cyberpunk.py tracing.py metrics.py /code/
 COPY templates/ /code/templates/
 
 EXPOSE 5000

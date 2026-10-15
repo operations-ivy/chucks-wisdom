@@ -34,7 +34,8 @@ ssh zaphod@192.168.1.183 '
   sudo k3s kubectl apply -f /tmp/k8s_config/importer/importer-job.yaml
   sudo k3s kubectl apply -f /tmp/k8s_config/metrics/metrics-service.yaml
 '
-# metrics-service-monitor.yaml only applies if kube-prometheus-stack's CRDs are installed
+# metrics-service-monitor.yaml, podmonitor.yaml and the dashboards only apply
+# once kube-prometheus-stack's CRDs are installed: kubectl apply -f k8s_config/metrics/
 ```
 
 (With local `kubectl` pointed at the cluster (the default `~/.kube/config`), just run

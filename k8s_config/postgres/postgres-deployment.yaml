@@ -44,6 +44,50 @@ spec:
             - mountPath: /docker-entrypoint-initdb.d
               name: init-scripts
               readOnly: true
+        # Postgres' own metrics for Prometheus (podmonitor.yaml in
+        # k8s_config/metrics/): connections, transactions, table and database
+        # sizes, locks. Same credentials as the app, over localhost.
+        - name: postgres-exporter
+          image: quay.io/prometheuscommunity/postgres-exporter:v0.17.1
+          # postmaster: when Postgres started (off by default).
+          args: ["--collector.postmaster"]
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: chuck-db
+                  key: POSTGRES_USER
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: chuck-db
+                  key: POSTGRES_DB
+            - name: DATA_SOURCE_USER
+              value: "$(DB_USER)"
+            - name: DATA_SOURCE_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: chuck-db
+                  key: POSTGRES_PASSWORD
+            - name: DATA_SOURCE_URI
+              value: "localhost:5432/$(DB_NAME)?sslmode=disable"
+          ports:
+            - name: metrics
+              containerPort: 9187
+          resources:
+            requests:
+              cpu: 10m
+              memory: 24Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65534
+            capabilities:
+              drop: ["ALL"]
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:
