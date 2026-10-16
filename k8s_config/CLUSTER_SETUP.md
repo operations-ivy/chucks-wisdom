@@ -1,5 +1,11 @@
 # Deploying chucks-wisdom onto the cluster
 
+> **Argo CD deploys `k8s_config/` now** (brick-k8s-config's
+> `argocd/apps/chucks-wisdom.yaml`): a merge to `main` is the deploy, and a
+> change made by hand is put back. The importer Job is the exception: Jenkins'
+> `chuck-importer` job runs it. To try a branch first: `scripts/trial-branch chucks-wisdom <branch>` in brick-k8s-config (and `scripts/trial-branch chucks-wisdom main` after the merge).
+> The `kubectl apply` steps below are only for rebuilding without Argo CD.
+
 This is the runbook for deploying `k8s_config/` onto the k3s cluster. Two
 nodes:
 
