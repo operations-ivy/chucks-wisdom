@@ -1,0 +1,66 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: importer
+  namespace: chuck
+spec:
+  # Suspended: the importer never runs on a schedule. It runs only on demand,
+  # started from this CronJob's template by Jenkins' chuck-importer job
+  # (kubectl create job --from=cronjob/importer), exactly like wigle-sync-now.
+  # Argo manages the suspended CronJob and Kustomize sets its image tag; the
+  # Job spawned from it inherits that tag. A schedule is required even when
+  # suspended, so this is one that can never fire (the 31st of February).
+  schedule: "0 0 31 2 *"
+  suspend: true
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      # Delete the finished Job and its pod after 10 minutes. Otherwise the pod
+      # lingers, the importer ServiceMonitor keeps scraping it, and TargetDown
+      # fires. Logs stay in Loki.
+      ttlSecondsAfterFinished: 600
+      template:
+        metadata:
+          labels:
+            app: importer
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: importer
+              # Bare name: Kustomize stamps the tag (k8s_config/kustomization.yaml).
+              image: whitepatrick/joke-importer
+              imagePullPolicy: IfNotPresent
+              env:
+                # From the chuck-db SealedSecret (brick-k8s-secrets/chucks-wisdom/).
+                - name: DB_CONNECTION_STRING
+                  valueFrom:
+                    secretKeyRef:
+                      name: chuck-db
+                      key: DB_CONNECTION_STRING
+                - name: OTEL_EXPORTER_OTLP_ENDPOINT
+                  value: "http://otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:4317"
+                # What to import (importer.Settings). The Jenkins chuck-importer job
+                # overrides these from its parameters when it starts a run; these
+                # are the defaults.
+                - name: IMPORTER_QUERY          # free-text search; empty = random by category
+                  value: ""
+                - name: IMPORTER_CATEGORIES     # comma-separated; empty = all
+                  value: ""
+                - name: IMPORTER_JOKES
+                  value: "1000"
+                - name: IMPORTER_TRIES_PER_CATEGORY
+                  value: "1000"
+                - name: IMPORTER_MAX_DUPLICATES
+                  value: "50"
+                - name: IMPORTER_SLEEP_SECONDS
+                  value: "60"
+              ports:
+                - containerPort: 8000
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 250m
+                  memory: 128Mi

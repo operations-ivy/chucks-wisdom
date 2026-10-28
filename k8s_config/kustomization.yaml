@@ -6,12 +6,12 @@ kind: Kustomization
 # Argo should manage must be listed here, or its sync would prune anything it
 # no longer sees - including the Postgres PVC.
 #
-# The importer Job is deliberately NOT listed: it is run on demand by the
-# chuck-importer Jenkins job, not Argo (the old Application excluded it too),
-# so it keeps its own image tag in importer/importer-job.yaml. The reader
-# Deployment carries the bare image name and its tag is set once in images:
-# below; a release bumps that newTag (plus the version in pyproject.toml) and
-# builds it with Jenkins' build-image job first.
+# The importer is a suspended CronJob: Argo manages it but it never fires on a
+# schedule. Jenkins' chuck-importer job starts an on-demand Job from it
+# (kubectl create job --from=cronjob/importer), like wigle-sync-now, and that
+# Job inherits the image tag stamped here. Both images are set once in images:
+# below; a release bumps the matching newTag (plus the version in
+# pyproject.toml) and builds it with Jenkins' build-image job first.
 
 resources:
   - chuck-namespace.yaml
@@ -19,6 +19,7 @@ resources:
   - postgres/postgres-pvc.yaml
   - postgres/postgres-deployment.yaml
   - postgres/postgres-service.yaml
+  - importer/importer-cronjob.yaml
   - reader/reader-deployment.yaml
   - reader/reader-service.yaml
   - reader/reader-ingress.yaml
@@ -31,5 +32,7 @@ resources:
   - metrics/reader-dashboard-configmap.yaml
 
 images:
+  - name: whitepatrick/joke-importer
+    newTag: 1.1.3
   - name: whitepatrick/joke-reader
     newTag: 1.0.13

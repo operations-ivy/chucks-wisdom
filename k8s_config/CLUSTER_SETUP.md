@@ -2,8 +2,9 @@
 
 > **Argo CD deploys `k8s_config/` now** (brick-k8s-config's
 > `argocd/apps/chucks-wisdom.yaml`): a merge to `main` is the deploy, and a
-> change made by hand is put back. The importer Job is the exception: Jenkins'
-> `chuck-importer` job runs it. To try a branch first: `scripts/trial-branch chucks-wisdom <branch>` in brick-k8s-config (and `scripts/trial-branch chucks-wisdom main` after the merge).
+> change made by hand is put back. The importer is a suspended CronJob Argo
+> manages; it runs only on demand, started from that CronJob by Jenkins'
+> `chuck-importer` job. To try a branch first: `scripts/trial-branch chucks-wisdom <branch>` in brick-k8s-config (and `scripts/trial-branch chucks-wisdom main` after the merge).
 > The `kubectl apply` steps below are only for rebuilding without Argo CD.
 
 This is the runbook for deploying `k8s_config/` onto the k3s cluster. Two
@@ -37,7 +38,7 @@ ssh zaphod@192.168.1.183 '
   sudo k3s kubectl apply -f /tmp/k8s_config/chuck-namespace.yaml
   sudo k3s kubectl apply -f /tmp/k8s_config/postgres/
   sudo k3s kubectl apply -f /tmp/k8s_config/reader/
-  sudo k3s kubectl apply -f /tmp/k8s_config/importer/importer-job.yaml
+  sudo k3s kubectl apply -f /tmp/k8s_config/importer/importer-cronjob.yaml
   sudo k3s kubectl apply -f /tmp/k8s_config/metrics/metrics-service.yaml
 '
 # metrics-service-monitor.yaml, podmonitor.yaml and the dashboards only apply
@@ -71,8 +72,9 @@ that repo's README.
 
 ## Re-running the importer
 
-The importer is a `Job`, so it runs once and completes. The usual way to run it
-again is the `chuck-importer` job on Jenkins (brick9000, `https://jenkins.brick.nozdormu.cloud`),
+The importer is a suspended `CronJob`; a run is a one-shot `Job` started from
+it, which completes and self-deletes. The usual way to run one is the
+`chuck-importer` job on Jenkins (brick9000, `https://jenkins.brick.nozdormu.cloud`),
 whose parameters choose what to import:
 
 | Parameter | Env var | Default | |
@@ -85,11 +87,11 @@ whose parameters choose what to import:
 | `SLEEP_SECONDS` | `IMPORTER_SLEEP_SECONDS` | 60 | Pause after each random pull |
 
 With the defaults a random import takes many hours (one pull a minute). By hand,
-with the defaults from the manifest:
+with the defaults from the CronJob (start a Job from it, as Jenkins does):
 
 ```bash
 ssh zaphod@192.168.1.183 '
-  sudo k3s kubectl -n chuck delete job importer
-  sudo k3s kubectl apply -f /tmp/k8s_config/importer/importer-job.yaml
+  sudo k3s kubectl -n chuck delete job importer --ignore-not-found
+  sudo k3s kubectl -n chuck create job importer --from=cronjob/importer
 '
 ```
