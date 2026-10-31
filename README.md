@@ -18,13 +18,17 @@ is tested too. It covers the schema, random and search imports (with the
 duplicate check running as real SQL), and the reader serving hashes of what
 the importer wrote. Those tests are skipped where Docker isn't available.
 `tests/test_reader_metrics.py` checks the reader's metrics with Flask's
-test client.
+test client. `tests/test_logs.py` checks both programs write one JSON
+object per line.
 
 ## Metrics
 
-The reader serves `/metrics` (`metrics.py`): requests and their duration by
-route, how long reading every joke from Postgres takes, failed reads, and
-how many jokes the last read returned. Postgres has a `postgres-exporter`
+Logs, traces and request metrics come from
+[brick-observe](https://github.com/operations-ivy/brick-observe). The reader
+serves `/metrics`: its `http_server_*` requests and durations by route, and
+from `metrics.py` how long reading every joke from Postgres takes, failed
+reads, and how many jokes the last read returned. An importer run also pushes
+its result to the Pushgateway (`job_*`, job `chuck-importer`). Postgres has a `postgres-exporter`
 sidecar (connections, transactions, rows, sizes, cache hits, deadlocks).
 `k8s_config/metrics/podmonitor.yaml` has Prometheus scrape both, and the
 "Chuck's wisdom: reader and Postgres" dashboard

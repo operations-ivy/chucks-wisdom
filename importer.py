@@ -7,18 +7,15 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from dataclasses import field
 
-import structlog
+import brick_observe
 from api_request_operations_ivy.api_request import ApiRequest
 from opentelemetry import trace
 from opentelemetry.instrumentation.psycopg import PsycopgInstrumentor
-from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from prometheus_client import Counter
 from prometheus_client import start_http_server
 from sql_storage_operations_ivy.pg_storage import PGStorage
 
-from tracing import init_tracing
-
-log = structlog.get_logger()
+log = brick_observe.get_logger(__name__)
 tracer = trace.get_tracer(__name__)
 
 JOKES_WRITTEN = Counter("importer_jokes_written_total", "Number of jokes written to DB this session")
@@ -68,7 +65,7 @@ def import_search(api, storage, settings: Settings) -> int:
     if "error" in found:
         raise RuntimeError(f"Search for {settings.query!r} failed: {found['error']}")
     results = found.get("result", [])
-    log.info("Search results", query=settings.query, total=len(results))
+    log.info("search results", query=settings.query, total=len(results))
 
     joke_count = 0
     for joke in results:
@@ -86,7 +83,7 @@ def import_search(api, storage, settings: Settings) -> int:
             joke_count += 1
             JOKES_WRITTEN.inc()
             span.set_attribute("chuck.outcome", "inserted")
-            log.info("Thats a new one!: %s", joke["id"])
+            log.info("new joke", joke_id=joke["id"], category=category)
     return joke_count
 
 
@@ -99,7 +96,7 @@ def choose_categories(api, settings: Settings) -> list[str]:
         return available
     unknown = [c for c in settings.categories if c not in available]
     if unknown:
-        log.warning("Skipping unknown categories", unknown=unknown, available=available)
+        log.warning("skipping unknown categories", unknown=unknown, available=available)
     chosen = [c for c in settings.categories if c in available]
     if not chosen:
         raise RuntimeError(f"None of {settings.categories} are categories; the API has {available}")
@@ -118,7 +115,7 @@ def import_random(api, storage, settings: Settings, sleep=time.sleep) -> int:
             for i in range(settings.tries_per_category):
                 if joke_count >= settings.jokes:
                     break
-                log.info("Checking API.. %s", i)
+                log.debug("checking the API", category=category, attempt=i)
                 try:
                     with tracer.start_as_current_span("process_joke") as span:
                         span.set_attribute("chuck.category", category)
@@ -137,45 +134,37 @@ def import_random(api, storage, settings: Settings, sleep=time.sleep) -> int:
                             joke_count += 1
                             JOKES_WRITTEN.inc()
                             span.set_attribute("chuck.outcome", "inserted")
-                            log.info("Thats a new one!: %s", joke_id)
+                            log.info("new joke", joke_id=joke_id, category=category)
                         elif duplicate_count >= settings.max_duplicates:
                             CATEGORY_SWITCHES.inc()
                             span.set_attribute("chuck.outcome", "category_switch")
-                            log.info("Ok let's move on: %s", category)
+                            log.info("too many duplicates, next category", category=category, duplicates=duplicate_count)
                             break
                         else:
                             DUPLICATES_RECEIVED.inc()
                             span.set_attribute("chuck.outcome", "duplicate")
-                            log.info("I've heard that one before: %s", joke_id)
+                            log.info("duplicate joke", joke_id=joke_id, category=category)
                             duplicate_count += 1
                             continue
                 except Exception:
-                    log.exception("Error fetching/storing joke for category %s, skipping", category)
+                    log.exception("couldn't fetch or store a joke, skipping", category=category)
                     continue
 
-        log.info("Total Jokes Added this run: %s", str(joke_count))
+        log.info("pass finished", added=joke_count)
         if joke_count == joke_count_before_pass:
-            log.warning("No new jokes found in a full pass over all categories, stopping.")
+            log.warning("no new jokes in a full pass over the categories, stopping")
             break
     return joke_count
 
 
-if __name__ == "__main__":
-    init_tracing("chucks-wisdom-importer")
-    RequestsInstrumentor().instrument()
-    PsycopgInstrumentor().instrument()
-
-    start_http_server(8000)
-
+def main() -> None:
     db_connection_string = os.environ["DB_CONNECTION_STRING"]
     settings = Settings.from_env()
-    log.info("Importer settings", **vars(settings))
+    log.info("importer settings", **vars(settings))
     api = ApiRequest()
     try:
-        log.info("Creating DB Connection")
-        log.info("...")
         storage = PGStorage(db_connection_string)
-        log.info("DB Connection Established!")
+        log.info("database connected")
     except Exception as e:
         raise Exception("No connection, did you export DB_CONNECTION_STRING?") from e
 
@@ -184,6 +173,17 @@ if __name__ == "__main__":
             added = import_search(api, storage, settings)
         else:
             added = import_random(api, storage, settings)
-        log.info("Import finished", added=added)
+        log.info("import finished", added=added)
     finally:
         storage.close_connection()
+
+
+if __name__ == "__main__":
+    brick_observe.init("chucks-wisdom-importer")
+    brick_observe.instrument_requests({"api.chucknorris.io": "chucknorris"})
+    PsycopgInstrumentor().instrument()
+
+    start_http_server(8000)
+
+    with brick_observe.job("chuck-importer"):
+        main()

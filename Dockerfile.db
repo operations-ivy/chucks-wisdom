@@ -29,6 +29,6 @@ ENV VIRTUAL_ENV=/venv PATH=/venv/bin:$PATH PYTHONPATH=/code
 WORKDIR /code
 
 ENV DB_CONNECTION_STRING=
-COPY importer.py tracing.py /code/
+COPY importer.py /code/
 
 ENTRYPOINT ["python", "importer.py"]

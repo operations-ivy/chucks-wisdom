@@ -37,6 +37,20 @@ spec:
             secretKeyRef:
               name: chuck-db
               key: DB_CONNECTION_STRING
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: LOG_FORMAT
+          value: "json"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
           value: "http://otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:4317"
         resources:
