@@ -36,12 +36,12 @@ class ReaderMetricsTests(unittest.TestCase):
             self.assertEqual(len(self.client.get("/api").get_json()), 2)
         text = self.metrics()
         self.assertIn("reader_jokes 2.0", text)
-        self.assertIn('reader_http_requests_total{code="200",route="/api"}', text)
+        self.assertIn('http_server_requests_total{code="200",method="GET",route="/api"}', text)
         self.assertIn("reader_db_read_duration_seconds_count", text)
 
     def test_unknown_paths_share_one_series(self):
         self.client.get("/wp-login.php")
-        self.assertIn('reader_http_requests_total{code="404",route="other"}', self.metrics())
+        self.assertIn('http_server_requests_total{code="404",method="GET",route="other"}', self.metrics())
 
     def test_failed_reads_are_counted(self):
         class Broken(FakeStorage):
