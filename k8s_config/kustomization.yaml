@@ -33,6 +33,6 @@ resources:
 
 images:
   - name: whitepatrick/joke-importer
-    newTag: 1.1.4
+    newTag: 1.1.5
   - name: whitepatrick/joke-reader
-    newTag: 1.0.14
+    newTag: 1.0.15
